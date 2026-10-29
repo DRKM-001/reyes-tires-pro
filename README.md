@@ -1,25 +1,21 @@
-# Reyes Tires Pro · landing page (placeholder)
+# Reyes Tires Pro website
 
-Single static page. Target domain: https://reyestirespro.com (not yet pointed anywhere; confirm the spelling).
+Static site for Reyes Tires Pro, 260 N Juniper St, Escondido, CA. Target domain: https://reyestirespro.com (to be confirmed).
+Vision, goals, milestones, open questions and the decision log are in [ROADMAP.md](ROADMAP.md).
 
-## Facts on the page (from the shop's business card only)
-- Phone: (442) 999-5014
-- Address: 260 N Juniper St, Escondido, CA 92025
-- Hours: Mon–Sat 8am–6pm, Sun 8am–3pm
-- Used and new tires and wheels; brands Michelin, BFGoodrich, Pirelli, Falken
+## Structure
+- `index.html`: home page. Its main action is to send the tire size on WhatsApp.
+- `tire-size-guide/`, `tire-basics/`: guides people search for.
+- `es/`: Spanish home page. **Hidden** (noindex, unlinked) until Spanish service is confirmed.
+- `404.html`, `_headers` (Cloudflare Pages security and cache headers), `robots.txt`, `sitemap.xml`, `llms.txt`.
+- `assets/site.css`, `assets/site.js`: shared by every page. The script handles the open-now status, the WhatsApp quote message and tap tracking.
 
-Not on the card, so not claimed: prices, services beyond tires and wheels, coordinates, reviews, owner name.
+## Facts rule
+Publish only facts confirmed by the shop or its supplier. Currently confirmed: phone (442) 999-5014, WhatsApp (619) 564-1742, address, hours (Mon to Sat 8 to 6, Sun 8 to 3), used and new tires and wheels, the brands Michelin, BFGoodrich, Pirelli, Falken, Milestar and Forte, and every size except large farm and agricultural tires.
+When the hours change, update them in four places: `assets/site.js` (HOURS), the hours tables, the JSON-LD and `llms.txt`.
 
-## SEO / GEO
-- Title, meta description, canonical, Open Graph, Twitter card
-- JSON-LD `AutoRepair` with address, phone, hours, and offers
-- `robots.txt` and `sitemap.xml`
-- `llms.txt` for AI answer systems
-- FAQ in plain text for search and AI extraction
+## Tracking
+Contact links carry `data-track` (call, whatsapp, whatsapp_quote, directions). When Cloudflare Zaraz is turned on for the zone, `site.js` sends these taps as events. Otherwise it does nothing.
 
-## Before going live
-- Confirm the domain, then update the canonical, og:url, JSON-LD url, sitemap, robots, and llms.txt if it differs.
-- Add a Google Business Profile for the shop. Local ranking depends on it more than on the page.
-- Add the shop's own geo coordinates to JSON-LD once confirmed (not invented here).
-
-Deploy: Cloudflare Pages, static, no build step, output directory `/`.
+## Deploy
+Cloudflare Pages, static, with no build step and output directory `/`.
