@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Camera } from "lucide-react";
+import { Camera, CheckCircle2, AlertTriangle } from "lucide-react";
 import { setDraft } from "./store";
 import { useQuoteLink } from "./useQuoteLink";
 import { quoteStrings } from "./strings";
@@ -51,7 +51,7 @@ function logLead(endpoint: string, body: object) {
 
 export default function QuoteCard({ lang, config }: { lang: Lang; config: QuoteConfig }) {
   const s = quoteStrings[lang];
-  const { href, message, size, hasSize, draft } = useQuoteLink(config.whatsapp, lang);
+  const { href, message, size, hasSize, valid, draft } = useQuoteLink(config.whatsapp, lang);
   // Controlled input shows what the customer typed; the message uses the normalized size.
   const [typed, setTyped] = useState("");
   useEffect(() => { if (draft.size && !typed) setTyped(draft.size); }, [draft.size]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -79,11 +79,16 @@ export default function QuoteCard({ lang, config }: { lang: Lang; config: QuoteC
         <div className="mt-5 space-y-4">
           <div>
             <label htmlFor="q-size" className={label}>{s.size}</label>
-            <input id="q-size" value={typed} inputMode="text" enterKeyHint="send"
+            <input id="q-size" value={typed} inputMode="text" enterKeyHint="send" aria-describedby="q-size-read"
               onChange={(e) => { const v = e.target.value.toUpperCase(); setTyped(v); setDraft({ size: v }); }}
+              onBlur={() => { if (valid && size !== typed) { setTyped(size); setDraft({ size }); } }}
               placeholder="225/45R17" autoComplete="off" autoCapitalize="characters" spellCheck={false} maxLength={24}
               className="w-full border-0 border-b-2 border-sand-200/25 bg-transparent px-0 pb-1 font-display text-5xl font-bold uppercase tracking-wide text-sand-50 outline-none placeholder:text-sand-200/25 focus:border-blaze-500 sm:text-6xl" />
-            <p className="mt-2 text-xs text-sand-200/60">
+            <p id="q-size-read" aria-live="polite" className="mt-2 min-h-[1.25rem] text-sm font-semibold">
+              {typed && valid && <span className="inline-flex items-center gap-1.5 text-wa-500"><CheckCircle2 className="h-4 w-4" />{s.readAs(size)}</span>}
+              {typed && !valid && /\d{3,}/.test(typed.replace(/\D/g, "")) && <span className="inline-flex items-start gap-1.5 font-medium text-amber-300"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />{s.check}</span>}
+            </p>
+            <p className="mt-1 text-xs text-sand-200/60">
               {s.sizeHint}.{config.sizeHelpHref && <> <a href={config.sizeHelpHref} className="underline hover:text-sand-50">{s.sizeHelp}</a></>}
             </p>
           </div>

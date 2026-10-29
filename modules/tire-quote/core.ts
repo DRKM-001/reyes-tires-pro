@@ -14,22 +14,83 @@ export interface QuoteDraft {
   notes?: string;
 }
 
-/** Normalize what people type: "p225 45 r17" -> "225/45R17", "LT 265/70 R 17" -> "LT265/70R17". */
-export function normalizeSize(input: string): string {
-  const up = (input || "").toUpperCase().trim();
-  const m = up.match(/^(LT|ST|P)?\s*(\d{3})\s*[\s/\-]\s*(\d{2})\s*(ZR|R|B|D|-|\s)?\s*(\d{2}(?:\.5)?)\b/);
-  if (m) {
-    const prefix = m[1] === "LT" || m[1] === "ST" ? m[1] : "";
-    const cons = m[4] && m[4].trim() && m[4] !== "-" ? m[4] : "R";
-    return `${prefix}${m[2]}/${m[3]}${cons}${m[5]}`;
-  }
-  // Anything else (flotation sizes like 33X12.50R20): just tidy it.
-  return up.replace(/\s+/g, "").replace(/^P(?=\d)/, "").replace(/[^0-9A-Z/.\-]/g, "").slice(0, 24);
+export type SizeKind = "metric" | "flotation" | "truck" | "unknown";
+
+export interface ParsedSize {
+  /** Normalized text, e.g. "225/45R17", "LT265/70R17", "35X12.50R17", "11R22.5". */
+  size: string;
+  kind: SizeKind;
+  /** True when the size reads as a real tire size (sane width, aspect and rim). */
+  valid: boolean;
 }
 
-/** Loose check: digits plus a slash or an R, like 225/45R17, 33X12.50R20, LT265/70R17. */
+const RIMS = (r: number) => (r >= 10 && r <= 30) || [16.5, 17.5, 19.5, 22.5, 24.5].includes(r);
+
+/**
+ * Read a tire size however people type it:
+ *  metric     "2254517", "225 45 17", "225-45-17", "p225/45r17", "LT2657017", "245/40zr18" -> 225/45R17 ...
+ *  flotation  "35x1250r17", "35 12.50 17", "35125017", "31x10.5r15", "33/12.5/20" -> 35X12.50R17 ...
+ *  truck      "11r22.5", "11 22.5", "295/75r22.5" -> 11R22.5, 295/75R22.5
+ */
+export function parseSize(input: string): ParsedSize {
+  const raw = (input || "").toUpperCase().trim();
+  const t = raw.replace(/[,]/g, ".").replace(/\s+/g, " ");
+  if (!t) return { size: "", kind: "unknown", valid: false };
+
+  // prefix (P = passenger, dropped; LT/ST kept)
+  const pm = t.match(/^(LT|ST|P)\s*/);
+  const prefix = pm && pm[1] !== "P" ? pm[1] : "";
+  const body = pm ? t.slice(pm[0].length) : t;
+  const compact = body.replace(/[^0-9.XRZ]/g, "");         // drop spaces, slashes, dashes
+  const digits = body.replace(/\D/g, "");
+
+  // 1) Metric with separators: 225 / 45 [Z]R 17[.5]
+  let m = body.match(/^(\d{3})\s*[/\-.\s]\s*(\d{2})\s*(ZR|R|B|D|[/\-.\s])?\s*(\d{2}(?:\.5)?)(?!\d)/);
+  // 2) Metric digits only: 2254517 or 22545R17 / 22545ZR17
+  if (!m) {
+    const d = compact.match(/^(\d{3})(\d{2})(ZR|R)?(\d{2}(?:\.5)?)$/);
+    if (d) m = [d[0], d[1], d[2], d[3], d[4]] as unknown as RegExpMatchArray;
+  }
+  if (m) {
+    const w = +m[1], a = +m[2], r = +m[4];
+    const cons = m[3] === "ZR" ? "ZR" : "R";
+    const valid = w >= 125 && w <= 395 && a >= 25 && a <= 95 && RIMS(r);
+    return { size: `${prefix}${m[1]}/${m[2]}${cons}${m[4]}`, kind: "metric", valid };
+  }
+
+  // 3) Flotation with separators: 35 X 12.50 R 17 ("X1250" / "X105" read as 12.50 / 10.5)
+  const fb = body.replace(/^(\d{2})\s*X\s*(\d{1,2}?)(50|5)(?=\s*[RX\-/\s])/, "$1X$2.$3");
+  let f = fb.match(/^(\d{2})\s*[X/\-\s]\s*(\d{1,2}(?:\.\d{1,2})?)\s*(R|X|[/\-\s])\s*(\d{2}(?:\.5)?)(?!\d)/);
+  // 4) Flotation digits only: 35125017 / 3512.5017 / 31105R15
+  if (!f) {
+    const d = compact.match(/^(\d{2})X?(\d{1,2})\.?(\d{1,2})R?(\d{2})$/);
+    if (d && (d[3] === "50" || d[3] === "5")) f = [d[0], d[1], `${d[2]}.${d[3]}`, "R", d[4]] as unknown as RegExpMatchArray;
+  }
+  if (f) {
+    const dia = +f[1], wid = +f[2], r = +f[4];
+    const width = f[2].includes(".") ? (+f[2]).toFixed(2) : f[2];
+    const valid = dia >= 26 && dia <= 44 && wid >= 7 && wid <= 18 && RIMS(r) && dia > r;
+    if (valid) return { size: `${prefix}${dia}X${width}R${f[4]}`, kind: "flotation", valid };
+  }
+
+  // 5) Truck / commercial: 11R22.5, 11 22.5, 11-24.5
+  const tr = body.match(/^(\d{1,2}(?:\.\d)?)\s*[R\-\s]\s*(\d{2}\.5)$/);
+  if (tr) return { size: `${tr[1]}R${tr[2]}`, kind: "truck", valid: RIMS(+tr[2]) };
+
+  // Anything else: tidy and pass along exactly what they meant
+  const tidy = (prefix + body).replace(/\s+/g, "").replace(/[^0-9A-Z/.\-]/g, "").slice(0, 24);
+  return { size: tidy, kind: "unknown", valid: false };
+}
+
+/** Normalized size text (see parseSize). */
+export function normalizeSize(input: string): string {
+  return parseSize(input).size;
+}
+
+/** Worth sending as a size: a recognized size, or at least something with digits we can pass along as typed. */
 export function isPlausibleSize(size: string): boolean {
-  return size.length >= 5 && /\d/.test(size) && /[/R]/.test(size);
+  const p = parseSize(size);
+  return p.valid || (p.size.replace(/\D/g, "").length >= 4);
 }
 
 const cond: Record<Lang, Record<Condition, string>> = {
