@@ -18,7 +18,7 @@ Turn "tires near me" into a phone call, a WhatsApp chat or a visit to Juniper St
 1. **Only true facts.** No invented prices, reviews, services, awards or stock. Any claim must come from the shop or its supplier. If something is unknown, the site says "call us".
 2. **Phone first.** Most visitors are on a phone, often standing next to the car. Calling, WhatsApp and directions are always one tap away.
 3. **Their words.** The site talks in tire size, price and "can you do it today", not in marketing copy.
-4. **Fast and cheap to run.** Static files on Cloudflare Pages with no build step, no framework and no monthly bill. Every page stays under 150 KB.
+4. **Fast and cheap to run.** A static Next.js export on Cloudflare Pages, plus Pages Functions for the API. No servers and no monthly bill.
 5. **Measure contacts, not visits.** The number that matters is how many people tap Call, WhatsApp or Directions.
 
 ## North-star metric
@@ -58,6 +58,13 @@ The owner asked for a site that competes on looks with the best tire shop sites.
 - The English and Spanish home pages are generated from one source (`tools/build.py`), so the two languages never drift apart.
 - The biggest remaining gap with the big chains is photography. All current photos are small images from the Google listing. **Ask the shop for a 20-minute phone photo session**: the storefront at golden hour, a tire coming off the machine, the racks, a finished set of wheels, the crew (only if they agree).
 
+### M0.6: Next.js rebuild in the reyestires.com style (2026-10-29)
+The owner preferred the look of reyestires.com (the Spring Valley shop's site) and asked for Next.js, with backend endpoints ready for the future.
+- Rebuilt in Next.js 14 + Tailwind + lucide icons, with the same design language as reyestires.com: dark ink hero, Oswald display type, red and blue racing accents, cut-corner chips.
+- Every feature kept: the size-to-WhatsApp quote (now with optional vehicle and name), open now / closed in shop time, the Spanish site, guides in both languages, the phone contact bar, the floating WhatsApp button, JSON-LD, hreflang, the sitemap, llms.txt and the branded 404.
+- No logo or drawn graphics: a type wordmark until the shop provides its files.
+- Backend-ready API (Cloudflare Pages Functions): `/api/health`, `/api/shop`, `/api/hours`, `/api/quote`, `/api/inventory`. Typed contract in `lib/api-types.ts`, documented in `docs/API.md`. Quote delivery (webhook, email through Resend, KV storage) and inventory switch on with environment variables, without code changes.
+
 ### M1: Live and on the map (target 2026-11-15 to 11-30)
 - [x] Live at https://reyestirespro.com, auto-deployed from `main` (2026-10-28).
 Still needs the shop or Greg (see "Open questions"):
@@ -81,7 +88,7 @@ Still needs the shop or Greg (see "Open questions"):
 ### M4: Live used-tire stock (Q2 2027)
 - Staff add tires from their phone (size, brand, tread in 32nds, DOT year, price). Customers search by size.
 - This is the big difference from other shops: a used-tire buyer can see the tire before driving over.
-- Same stack as the shop family's hauling app (Supabase + Cloudflare), in a separate project for this shop.
+- Same stack as the shop family's hauling app (Supabase + Cloudflare), in a separate project for this shop. The website already calls `/api/inventory`. Set `INVENTORY_API_URL` and it goes live.
 
 ## Open questions for the shop
 
@@ -94,6 +101,9 @@ Still needs the shop or Greg (see "Open questions"):
 7. Do you accept appointments, or walk-ins only?
 
 ## Decision log
+
+- 2026-10-29: Moved to Next.js at the owner's request, keeping a static export. The API runs as Cloudflare Pages Functions on the same domain, not as a Next server. That keeps hosting free and fast, and still gives real endpoints. Supersedes the "no framework" decision of 2026-10-28.
+- 2026-10-29: The quote form logs every lead to `/api/quote` with `sendBeacon` and opens WhatsApp at the same time. The customer never waits on the backend, and leads start being captured as soon as a delivery channel is configured.
 
 - 2026-10-28: The design competes on real assets only: no stock photos, no made-up guarantees or promos. The live tire sidewall is the signature, because it is unique to this site and it teaches the customer where to find their size.
 

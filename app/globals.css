@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body { @apply bg-sand-50 font-sans text-stone-850 antialiased; }
+  :focus-visible { outline: 3px solid #f2b01e; outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .container-x { @apply mx-auto w-full max-w-6xl px-4 sm:px-8; }
+  /* Oswald has no true italic, so slant it for a controlled racing lean */
+  .display-italic { font-style: italic; display: inline-block; transform: skewX(-6deg); }
+  /* cut-corner race-bib chip */
+  .clip-slash { clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+  .speed-bar { @apply inline-block h-1.5; clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%); }
+  .safe-bottom { padding-bottom: calc(0.5rem + env(safe-area-inset-bottom)); }
+}

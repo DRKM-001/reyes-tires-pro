@@ -1,31 +1,41 @@
 # Reyes Tires Pro website
 
-Static site for Reyes Tires Pro, 260 N Juniper St, Escondido, CA. Target domain: https://reyestirespro.com (to be confirmed).
-Vision, goals, milestones, open questions and the decision log are in [ROADMAP.md](ROADMAP.md).
+https://reyestirespro.com is the site for Reyes Tires Pro, 260 N Juniper St, Escondido, CA (corner of Juniper & Pennsylvania).
+The vision, goals, milestones, open questions and decision log are in [ROADMAP.md](ROADMAP.md). The API is described in [docs/API.md](docs/API.md).
 
-## Editing the home pages
-`index.html` and `es/index.html` are **generated**. Edit `tools/build.py` (facts in `FACTS`, copy in `T`), then run:
+## Stack
+- **Next.js 14** (App Router, TypeScript), exported as a fully static site (`out/`)
+- **Tailwind CSS**, with the same family look as reyestires.com: sand, ink, logo red ("blaze") and logo blue ("royal")
+- **lucide-react** icons; **Radix** accordion for the FAQ
+- Oswald (display) + Inter (body), self-hosted through `@fontsource` (no Google Fonts calls)
+- **Cloudflare Pages** hosting, plus **Pages Functions** in `functions/api/` for the backend endpoints
 
+## Where things live
+| What | File |
+|---|---|
+| Shop facts (phone, hours, rating, brands, reviews) | `lib/site.ts`, the single source for pages, JSON-LD and the API |
+| All page text, English and Spanish | `lib/i18n.tsx` |
+| Quote rules (size normalizing, WhatsApp message) | `lib/quote.ts`, shared by the site and `/api/quote` |
+| API contract | `lib/api-types.ts`, `lib/api-client.ts` |
+| Sections | `components/*.tsx` |
+| Pages | `app/(en)/...` and `app/(es)/es/...` (each language has its own root layout, so `<html lang>` is correct) |
+| SEO | `lib/meta.ts` (canonical + hreflang), `lib/schema.ts` (TireShop and FAQ JSON-LD), `app/sitemap.ts`, `app/robots.ts`, `public/llms.txt` |
+| Photos | `public/photos/` (from the Google listing for now; swap in the shop's own photos when they arrive) |
+
+## Commands
+```bash
+npm install
+npm run dev         # http://localhost:3000
+npm run build       # static site to out/ (also writes the branded out/404.html)
+npm run pages:dev   # site + /api together, like production: http://localhost:8788
 ```
-python3 tools/build.py
-```
 
-The same script also updates the header and footer of the guide pages and the 404 page. Commit the generated files: Cloudflare Pages serves them as they are, with no build step.
-
-## Structure
-- `index.html`: home page. Its main action is to send the tire size on WhatsApp.
-- `tire-size-guide/`, `tire-basics/`: guides people search for.
-- `es/`: Spanish home page. **Hidden** (noindex, unlinked) until Spanish service is confirmed.
-- `404.html`, `_headers` (Cloudflare Pages security and cache headers), `robots.txt`, `sitemap.xml`, `llms.txt`.
-- `assets/site.css`, `assets/site.js`: shared by every page. The script handles the open-now status, the WhatsApp quote message and tap tracking.
+## Cloudflare Pages settings
+- Build command: `npm run build`
+- Build output directory: `out`
+- Environment variable: `NODE_VERSION` = `20`
+- Functions: detected automatically from `functions/`
+- Optional backend variables: see docs/API.md
 
 ## Facts rule
-Publish only facts confirmed by the shop or its supplier. Currently confirmed: phone (442) 999-5014, WhatsApp (619) 564-1742, address, hours (Mon to Sat 8 to 6, Sun 8 to 3), used and new tires and wheels, the brands Michelin, BFGoodrich, Pirelli, Falken, Milestar and Forte, and every size except large farm and agricultural tires.
-When the hours change, update `assets/site.js` (HOURS), `tools/build.py` and `llms.txt`, then run the build.
-The Google rating and review count in `FACTS` were checked on 2026-10-28. Update them in the monthly check.
-
-## Tracking
-Contact links carry `data-track` (call, whatsapp, whatsapp_quote, directions). When Cloudflare Zaraz is turned on for the zone, `site.js` sends these taps as events. Otherwise it does nothing.
-
-## Deploy
-Cloudflare Pages, static, with no build step and output directory `/`.
+Publish only facts confirmed by the shop or its own listings. If something is unknown, the site says "call us".
