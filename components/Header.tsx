@@ -21,9 +21,9 @@ export default function Header({ lang, home = true }: { lang: Lang; home?: boole
       <div className="container-x flex h-16 items-center justify-between gap-3">
         <a href={t.home} aria-label={`${site.name}, ${site.slogan}`}><Wordmark /></a>
 
-        <nav aria-label="Main" className="hidden items-center gap-6 lg:flex">
-          {links.map((l) => (
-            <a key={l.href} href={l.href} className={`${l.wide ? "hidden xl:inline" : ""} text-sm font-semibold uppercase tracking-wide text-stone-750 transition-colors hover:text-blaze-600`}>
+        <nav aria-label="Main" className="hidden items-center gap-5 lg:flex xl:gap-7">
+          {links.filter((l) => !l.wide).map((l) => (
+            <a key={l.href} href={l.href} className={`whitespace-nowrap text-sm font-semibold uppercase tracking-wide text-stone-750 transition-colors hover:text-blaze-600`}>
               {l.label}
             </a>
           ))}
@@ -31,13 +31,13 @@ export default function Header({ lang, home = true }: { lang: Lang; home?: boole
 
         <div className="flex items-center gap-2 sm:gap-3">
           <a href={t.otherLang.href} hrefLang={t.otherLang.lang} lang={t.otherLang.lang}
-             className="hidden items-center gap-1.5 text-sm font-semibold text-stone-750 hover:text-blaze-600 sm:flex">
+             className="hidden items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-stone-750 hover:text-blaze-600 sm:flex">
             <Languages className="h-4 w-4 text-royal-500" />{t.otherLang.label}
           </a>
-          <a href={site.phoneHref} onClick={() => track("call")} className="hidden items-center gap-2 text-sm font-semibold text-stone-850 md:flex">
+          <a href={site.phoneHref} onClick={() => track("call")} className="hidden items-center gap-2 whitespace-nowrap text-sm font-semibold text-stone-850 xl:flex">
             <Phone className="h-4 w-4 text-blaze-600" />{site.phone}
           </a>
-          <a href={href("#quote")} className="rounded-md bg-blaze-500 px-3.5 py-2 text-sm font-bold uppercase tracking-wide text-white shadow-sm transition-colors hover:bg-blaze-600 sm:px-4">
+          <a href={href("#quote")} className="whitespace-nowrap rounded-md bg-blaze-500 px-3.5 py-2 text-sm font-bold uppercase tracking-wide text-white shadow-sm transition-colors hover:bg-blaze-600 sm:px-4">
             {t.getQuote}
           </a>
           <button aria-label={t.menu} aria-expanded={open} onClick={() => setOpen((o) => !o)} className="p-1 lg:hidden">
