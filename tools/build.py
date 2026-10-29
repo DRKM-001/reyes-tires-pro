@@ -379,6 +379,20 @@ def footer(L):
             f'    <div><p>{F["street"]}, {F["city"]}</p><p>{t["foot_hours"]}</p></div>\n'
             f'    <div><p>{t["phone_l"]} <a href="tel:{F["phone_e164"]}" data-track="call">{F["phone"]}</a></p><p>WhatsApp <a href="{wa}" data-track="whatsapp">{F["wa"]}</a></p><p><a href="{F["instagram"]}">Instagram</a>, <a href="{F["yelp"]}">Yelp</a>, <a href="{F["reviews"]}">Google</a></p></div>\n  </div></footer>')
 
+def bust_cache():
+    """Tag site.css and site.js with a content hash so browsers fetch the new version after every change."""
+    import hashlib, re, glob
+    tags = {}
+    for a in ("site.css", "site.js"):
+        h = hashlib.sha1(open(os.path.join(ROOT, "assets", a), "rb").read()).hexdigest()[:8]
+        tags[a] = h
+    for fp in glob.glob(os.path.join(ROOT, "**", "*.html"), recursive=True):
+        s = open(fp).read()
+        n = re.sub(r'/assets/(site\.(?:css|js))(\?v=[0-9a-f]+)?', lambda m: f"/assets/{m.group(1)}?v={tags[m.group(1)]}", s)
+        if n != s:
+            open(fp, "w").write(n)
+    print("cache tags", tags)
+
 if __name__ == "__main__":
     import re
     for p, (L, cur, alt) in SUB.items():
@@ -390,3 +404,4 @@ if __name__ == "__main__":
         with open(os.path.join(ROOT, out), "w") as f:
             f.write(page(L))
         print("wrote", out)
+    bust_cache()
