@@ -47,7 +47,7 @@ export default function Footer({ t }: { t: Dict }) {
              className="mt-6 inline-flex items-center gap-3 rounded-lg border border-sand-200/12 bg-sand-50/[0.04] px-4 py-2.5 hover:border-blaze-500/40">
             <span className="font-display text-2xl font-bold text-sand-50">{site.rating}</span>
             <span>
-              <span className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-blaze-500 text-blaze-500" />)}</span>
+              <span className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />)}</span>
               <span className="text-xs text-sand-200/70">{f.reviews(site.reviewCount)}</span>
             </span>
           </a>

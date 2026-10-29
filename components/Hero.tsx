@@ -9,7 +9,7 @@ export default function Hero({ t }: { t: Dict }) {
   return (
     <section id="top" className="relative overflow-hidden bg-ink-900">
       {/* Dark backdrop; a hero photo from the shop drops in here later (public/hero.jpg). */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_30%,rgba(37,99,235,0.18),transparent_55%),radial-gradient(ellipse_at_10%_90%,rgba(209,31,39,0.18),transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_30%,rgba(31,111,224,0.24),transparent_55%),radial-gradient(ellipse_at_10%_90%,rgba(209,31,39,0.12),transparent_50%)]" />
       <div className="absolute inset-0 bg-grain opacity-[0.08]" />
       <div className="absolute inset-y-0 right-0 hidden w-1/2 bg-stripes opacity-25 [mask-image:linear-gradient(to_left,black,transparent)] lg:block" />
       <div className="absolute inset-x-0 top-0 z-10 h-1 bg-blaze-500" />
@@ -40,7 +40,7 @@ export default function Hero({ t }: { t: Dict }) {
 
           <div className="mt-9 space-y-3">
             <a href={site.reviewsHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sand-200 hover:text-sand-50">
-              <span className="flex items-center gap-1">{[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-blaze-500 text-blaze-500" />)}</span>
+              <span className="flex items-center gap-1">{[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />)}</span>
               <span className="text-sm font-medium">{h.rating(site.rating, site.reviewCount)}</span>
             </a>
             <OpenStatus lang={t.lang} className="text-sand-200/90" />
