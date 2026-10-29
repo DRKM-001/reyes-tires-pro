@@ -45,17 +45,20 @@ Turn "tires near me" into a phone call, a WhatsApp chat or a visit to Juniper St
 - Shared stylesheet and script for every page. Favicon, social share image and 404 page.
 - Structured data changed to `TireShop`, the correct schema.org type, with a map link.
 - Security and caching headers for Cloudflare Pages (`_headers`).
-- Spanish home page built at `/es/`. It stays hidden (noindex, unlinked) until the shop confirms that customers can be served in Spanish by phone and WhatsApp.
+- Spanish site live at `/es/`: home page plus both guides, linked to their English pages with hreflang (Spanish confirmed 2026-10-28).
+- "WhatsApp answered anytime" shown in the hero, in the closed status, in the FAQ and in llms.txt.
+- Instagram added to the footers and the structured data (`sameAs`). Link to the Google reviews from the home page.
 
 ### M1: Live and on the map (target 2026-11-15 to 11-30)
 - [x] Live at https://reyestirespro.com, auto-deployed from `main` (2026-10-28).
 Still needs the shop or Greg (see "Open questions"):
-- Turn on Cloudflare Web Analytics. Count Call, WhatsApp and Directions taps as events.
-- Claim and verify the Google Business Profile. Add Apple Business Connect and Bing Places with the exact same name, address and phone.
+- **Top priority: claim the existing Google Business Profile.** It already has 4.9 stars, 112 reviews, photos and popular times, but it shows "Own this business?" (nobody has claimed it) and "Add website" (no website linked). Claim it, verify it (someone at the shop has to be present), link reyestirespro.com, and check the hours and services.
+- Turn on Cloudflare Web Analytics and Zaraz to count Call, WhatsApp and Directions taps.
+- Add Apple Business Connect and Bing Places with the exact same name, address and phone.
+- Claim the Yelp page (37 reviews, 4.3) and add the website there and in the Instagram bio (@reyestirespro).
 - Ten real photos: the storefront, the tire racks, the service bay and the sign seen from Juniper St.
 
 ### M2: Found locally (December 2026 to January 2027)
-- Publish the Spanish site once confirmed, with hreflang between the two languages.
 - One page per confirmed service (e.g. mounting and balancing, flat repair, used-tire inspection), written only after the shop lists what it does and what it charges.
 - A review card at the counter: a QR code that opens the Google review form.
 - Consistent listings on Yelp and the main directories.
@@ -73,16 +76,14 @@ Still needs the shop or Greg (see "Open questions"):
 ## Open questions for the shop
 
 1. ~~Is the domain reyestirespro.com?~~ Yes: live 2026-10-28.
-2. Can customers be served in **Spanish** by phone and WhatsApp? (If yes, the `/es/` page goes live.)
-3. Which services do you offer besides selling tires and wheels? Mounting, balancing, flat repair, alignment, TPMS, rotation? Any prices you want shown?
-4. Is there already a Google Business Profile for the shop? Who has the login?
-5. Is WhatsApp (619) 564-1742 answered during all open hours?
+2. ~~Spanish?~~ Yes, a big part of the customer base. The Spanish site went live 2026-10-28.
+3. Which services do you offer besides selling tires and wheels? Google's own summary says "fast installation and alignment services". Confirm before the site says so. Also mounting, balancing, flat repair, TPMS, rotation? Any prices you want shown?
+4. The Google Business Profile exists but is unclaimed. Who at the shop can be there for the verification (video call or postcard)?
+5. ~~WhatsApp hours?~~ Answered anytime (2026-10-28).
 6. Do you have a logo file? (The site uses a text mark for now.)
 7. Do you accept appointments, or walk-ins only?
 
 ## Decision log
-
-- 2026-10-28: M0 shipped and live on reyestirespro.com the same evening.
 
 - 2026-10-28: Kept the stack as static HTML on Cloudflare Pages. A framework adds nothing for a site this size.
 - 2026-10-28: Made WhatsApp-with-tire-size the main action, next to Call. A size turns a vague "how much?" into a quote the shop can answer straight away.

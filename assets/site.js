@@ -4,7 +4,7 @@
   var T = {
     en: {
       openUntil: function (h) { return 'Open now, closes at ' + h; },
-      opensAt: function (d, h) { return 'Closed, opens ' + d + ' at ' + h; },
+      opensAt: function (d, h) { return 'Closed, opens ' + d + ' at ' + h + '. WhatsApp is answered anytime.'; },
       today: 'today', tomorrow: 'tomorrow',
       days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
       msgSize: function (n, cond, size) { return 'Hi, I would like a quote for ' + n + ' ' + cond + ' tire' + (n === '1' ? '' : 's') + ', size ' + size + '.'; },
@@ -13,7 +13,7 @@
     },
     es: {
       openUntil: function (h) { return 'Abierto ahora, cierra a las ' + h; },
-      opensAt: function (d, h) { return 'Cerrado, abre ' + d + ' a las ' + h; },
+      opensAt: function (d, h) { return 'Cerrado, abre ' + d + ' a las ' + h + (h.slice(-1) === '.' ? ' ' : '. ') + 'WhatsApp se contesta a toda hora.'; },
       today: 'hoy', tomorrow: 'mañana',
       days: ['el domingo', 'el lunes', 'el martes', 'el miércoles', 'el jueves', 'el viernes', 'el sábado'],
       msgSize: function (n, cond, size) { return 'Hola, quisiera un precio para ' + n + ' llanta' + (n === '1' ? '' : 's') + ' ' + cond + ', medida ' + size + '.'; },
