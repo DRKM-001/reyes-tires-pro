@@ -48,8 +48,8 @@ Turn "tires near me" into a phone call, a WhatsApp chat or a visit to Juniper St
 - Spanish home page built at `/es/`. It stays hidden (noindex, unlinked) until the shop confirms that customers can be served in Spanish by phone and WhatsApp.
 
 ### M1: Live and on the map (target 2026-11-15 to 11-30)
-Needs the shop or Greg (see "Open questions"):
-- Confirm the domain spelling, connect the repo to Cloudflare Pages, and point DNS.
+- [x] Live at https://reyestirespro.com, auto-deployed from `main` (2026-10-28).
+Still needs the shop or Greg (see "Open questions"):
 - Turn on Cloudflare Web Analytics. Count Call, WhatsApp and Directions taps as events.
 - Claim and verify the Google Business Profile. Add Apple Business Connect and Bing Places with the exact same name, address and phone.
 - Ten real photos: the storefront, the tire racks, the service bay and the sign seen from Juniper St.
@@ -72,7 +72,7 @@ Needs the shop or Greg (see "Open questions"):
 
 ## Open questions for the shop
 
-1. Is the domain **reyestirespro.com**? Who owns it, and where is it registered?
+1. ~~Is the domain reyestirespro.com?~~ Yes: live 2026-10-28.
 2. Can customers be served in **Spanish** by phone and WhatsApp? (If yes, the `/es/` page goes live.)
 3. Which services do you offer besides selling tires and wheels? Mounting, balancing, flat repair, alignment, TPMS, rotation? Any prices you want shown?
 4. Is there already a Google Business Profile for the shop? Who has the login?
@@ -81,6 +81,8 @@ Needs the shop or Greg (see "Open questions"):
 7. Do you accept appointments, or walk-ins only?
 
 ## Decision log
+
+- 2026-10-28: M0 shipped and live on reyestirespro.com the same evening.
 
 - 2026-10-28: Kept the stack as static HTML on Cloudflare Pages. A framework adds nothing for a site this size.
 - 2026-10-28: Made WhatsApp-with-tire-size the main action, next to Call. A size turns a vague "how much?" into a quote the shop can answer straight away.
