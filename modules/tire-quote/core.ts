@@ -46,10 +46,14 @@ export function parseSize(input: string): ParsedSize {
 
   // 1) Metric with separators: 225 / 45 [Z]R 17[.5]
   let m = body.match(/^(\d{3})\s*[/\-.\s]\s*(\d{2})\s*(ZR|R|B|D|[/\-.\s])?\s*(\d{2}(?:\.5)?)(?!\d)/);
+  if (!m) {
+    const tm = body.match(/^(\d{3})\s*[/\-.\s]\s*(\d{2})\s*(R|[/\-.\s])?\s*((?:16|17|19|22|24)5)$/);
+    if (tm) m = [tm[0], tm[1], tm[2], tm[3], `${tm[4].slice(0, 2)}.5`] as unknown as RegExpMatchArray;
+  }
   // 2) Metric digits only: 2254517 or 22545R17 / 22545ZR17
   if (!m) {
-    const d = compact.match(/^(\d{3})(\d{2})(ZR|R)?(\d{2}(?:\.5)?)$/);
-    if (d) m = [d[0], d[1], d[2], d[3], d[4]] as unknown as RegExpMatchArray;
+    const d = compact.match(/^(\d{3})(\d{2})(ZR|R)?(\d{2}(?:\.5)?|(?:16|17|19|22|24)5)$/);
+    if (d) m = [d[0], d[1], d[2], d[3], d[4].length === 3 ? `${d[4].slice(0, 2)}.5` : d[4]] as unknown as RegExpMatchArray;
   }
   if (m) {
     const w = +m[1], a = +m[2], r = +m[4];
@@ -73,9 +77,13 @@ export function parseSize(input: string): ParsedSize {
     if (valid) return { size: `${prefix}${dia}X${width}R${f[4]}`, kind: "flotation", valid };
   }
 
-  // 5) Truck / commercial: 11R22.5, 11 22.5, 11-24.5
-  const tr = body.match(/^(\d{1,2}(?:\.\d)?)\s*[R\-\s]\s*(\d{2}\.5)$/);
-  if (tr) return { size: `${tr[1]}R${tr[2]}`, kind: "truck", valid: RIMS(+tr[2]) };
+  // 5) Truck / commercial: 11R22.5, 11 22.5, 11-24.5, and digits only: 11225, 1122.5, 11r225, 8195
+  //    Truck rims always end in .5 (16.5, 17.5, 19.5, 22.5, 24.5).
+  const tr = compact.match(/^(\d{1,2})R?(16|17|19|22|24)\.?5$/);
+  if (tr) {
+    const w = +tr[1];
+    return { size: `${prefix}${tr[1]}R${tr[2]}.5`, kind: "truck", valid: w >= 7 && w <= 12 };
+  }
 
   // Anything else: tidy and pass along exactly what they meant
   const tidy = (prefix + body).replace(/\s+/g, "").replace(/[^0-9A-Z/.\-]/g, "").slice(0, 24);
