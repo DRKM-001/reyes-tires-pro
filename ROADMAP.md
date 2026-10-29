@@ -49,6 +49,15 @@ Turn "tires near me" into a phone call, a WhatsApp chat or a visit to Juniper St
 - "WhatsApp answered anytime" shown in the hero, in the closed status, in the FAQ and in llms.txt.
 - Instagram added to the footers and the structured data (`sameAs`). Link to the Google reviews from the home page.
 
+### M0.5: Look like a top shop (done 2026-10-28)
+The owner asked for a site that competes on looks with the best tire shop sites. Discount Tire and Les Schwab win on tire search up front, trust blocks, reviews and photography. We match them using only real things:
+- The shop's own RT logo, redrawn from the pole sign, in the header, footer, favicon and share image.
+- A large tire in the hero. The size the customer types appears live on the sidewall.
+- A trust strip: the Google rating, open 7 days, Spanish spoken, the Juniper & Pennsylvania landmark.
+- A gallery of the real shop (the Mercedes plate is blurred). Services with icons. A reviews band quoting real Google reviews. A brand wall. A map in the Visit section.
+- The English and Spanish home pages are generated from one source (`tools/build.py`), so the two languages never drift apart.
+- The biggest remaining gap with the big chains is photography. All current photos are small images from the Google listing. **Ask the shop for a 20-minute phone photo session**: the storefront at golden hour, a tire coming off the machine, the racks, a finished set of wheels, the crew (only if they agree).
+
 ### M1: Live and on the map (target 2026-11-15 to 11-30)
 - [x] Live at https://reyestirespro.com, auto-deployed from `main` (2026-10-28).
 Still needs the shop or Greg (see "Open questions"):
@@ -85,6 +94,8 @@ Still needs the shop or Greg (see "Open questions"):
 7. Do you accept appointments, or walk-ins only?
 
 ## Decision log
+
+- 2026-10-28: The design competes on real assets only: no stock photos, no made-up guarantees or promos. The live tire sidewall is the signature, because it is unique to this site and it teaches the customer where to find their size.
 
 - 2026-10-28: Took the services list from the shop's claimed Yelp page, since the business entered it. The street-corner photo and the Juniper & Pennsylvania landmark come from the Google listing.
 

@@ -61,6 +61,7 @@
   if (form) {
     var input = form.querySelector('[name=size]');
     var wa = form.querySelector('[data-wa-quote]');
+    var tireText = document.querySelector('[data-tire-size]');
     function normalize(s) {
       return s.toUpperCase().replace(/\s+/g, '').replace(/^P(?=\d)/, '').replace(/[^0-9A-Z\/.\-]/g, '');
     }
@@ -69,6 +70,7 @@
       var n = (form.querySelector('[name=qty]:checked') || {}).value || '4';
       var c = (form.querySelector('[name=cond]:checked') || {}).value || 'either';
       var msg = size.length >= 5 ? T.msgSize(n, T.cond[c], size) : T.msgPlain;
+      if (tireText) tireText.textContent = size.length >= 3 ? size.slice(0, 14) : '225/45R17';
       wa.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
     }
     input.addEventListener('input', function () {
