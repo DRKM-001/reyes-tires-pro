@@ -55,8 +55,9 @@ Still needs the shop or Greg (see "Open questions"):
 - **Top priority: claim the existing Google Business Profile.** It already has 4.9 stars, 112 reviews, photos and popular times, but it shows "Own this business?" (nobody has claimed it) and "Add website" (no website linked). Claim it, verify it (someone at the shop has to be present), link reyestirespro.com, and check the hours and services.
 - Turn on Cloudflare Web Analytics and Zaraz to count Call, WhatsApp and Directions taps.
 - Add Apple Business Connect and Bing Places with the exact same name, address and phone.
-- Claim the Yelp page (37 reviews, 4.3) and add the website there and in the Instagram bio (@reyestirespro).
-- Ten real photos: the storefront, the tire racks, the service bay and the sign seen from Juniper St.
+- The Yelp page (37 reviews, 4.3) is already **claimed** by someone at the shop. Find out who has the login, add the website, and turn on Yelp messaging (currently off). Add the website to the Instagram bio (@reyestirespro).
+- Ten real photos: the storefront, the tire racks, the service bay and the sign seen from Juniper St. For now the site uses one street-corner photo from the Google listing (`assets/shop-corner.*`). Confirm the shop took it, or replace it with the shop's own.
+- The Google listing photos show bays painted SUSPENSION and ALIGNMENT. Confirm these services are current before adding service pages.
 
 ### M2: Found locally (December 2026 to January 2027)
 - One page per confirmed service (e.g. mounting and balancing, flat repair, used-tire inspection), written only after the shop lists what it does and what it charges.
@@ -77,13 +78,15 @@ Still needs the shop or Greg (see "Open questions"):
 
 1. ~~Is the domain reyestirespro.com?~~ Yes: live 2026-10-28.
 2. ~~Spanish?~~ Yes, a big part of the customer base. The Spanish site went live 2026-10-28.
-3. Which services do you offer besides selling tires and wheels? Google's own summary says "fast installation and alignment services". Confirm before the site says so. Also mounting, balancing, flat repair, TPMS, rotation? Any prices you want shown?
+3. Which services do you offer besides selling tires and wheels? ~~Installation, balancing, repair, rotation and TPMS repair~~ are confirmed from the shop's claimed Yelp listing and are on the site. Open: **alignment and suspension** (bays are painted for both, and Google mentions alignment). Are they still offered? Any prices you want shown?
 4. The Google Business Profile exists but is unclaimed. Who at the shop can be there for the verification (video call or postcard)?
 5. ~~WhatsApp hours?~~ Answered anytime (2026-10-28).
 6. Do you have a logo file? (The site uses a text mark for now.)
 7. Do you accept appointments, or walk-ins only?
 
 ## Decision log
+
+- 2026-10-28: Took the services list from the shop's claimed Yelp page, since the business entered it. The street-corner photo and the Juniper & Pennsylvania landmark come from the Google listing.
 
 - 2026-10-28: Kept the stack as static HTML on Cloudflare Pages. A framework adds nothing for a site this size.
 - 2026-10-28: Made WhatsApp-with-tire-size the main action, next to Call. A size turns a vague "how much?" into a quote the shop can answer straight away.
