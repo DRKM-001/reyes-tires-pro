@@ -42,6 +42,9 @@ export const site = {
 
   brands: ["Michelin", "BFGoodrich", "Pirelli", "Falken", "Milestar", "Forte Wheels"],
 
+  // Google Analytics 4 measurement ID (provided 2026-10-29).
+  gaId: "G-76CJLBCFC7",
+
   timeZone: "America/Los_Angeles",
   // 0 = Sunday. [open, close] in 24h hours.
   hours: { 0: [8, 15], 1: [8, 18], 2: [8, 18], 3: [8, 18], 4: [8, 18], 5: [8, 18], 6: [8, 18] } as Record<number, [number, number]>,

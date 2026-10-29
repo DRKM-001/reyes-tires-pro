@@ -1,7 +1,12 @@
-// Contact-tap events. Sent to Cloudflare Zaraz when it's turned on for the zone; otherwise a no-op.
+// Contact-tap events -> Google Analytics 4 (and Cloudflare Zaraz if it is ever turned on).
+// Event names: call, whatsapp, whatsapp_quote, whatsapp_photo, directions, reviews.
+type W = Window & { gtag?: (...a: unknown[]) => void; zaraz?: { track: (e: string, d: object) => void } };
+
 export function track(event: string, data: Record<string, string> = {}) {
   try {
-    const z = (window as unknown as { zaraz?: { track: (e: string, d: object) => void } }).zaraz;
-    z?.track(event, { page: location.pathname, ...data });
-  } catch { /* ignore */ }
+    const w = window as W;
+    const params = { page_path: location.pathname, lang: document.documentElement.lang, ...data };
+    w.gtag?.("event", event, params);
+    w.zaraz?.track(event, params);
+  } catch { /* never break a click */ }
 }
