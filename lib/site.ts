@@ -26,6 +26,10 @@ export const site = {
   mapEmbed:
     "https://maps.google.com/maps?q=Reyes%20Tires%20Pro%2C%20260%20N%20Juniper%20St%2C%20Escondido%2C%20CA%2092025&z=16&output=embed",
 
+  // Where "Leave a review" sends people. Swap in the Google "write a review" link
+  // (search.google.com/local/writereview?placeid=...) once the Business Profile is claimed.
+  reviewWriteHref:
+    "https://www.google.com/maps/search/?api=1&query=Reyes+Tires+Pro,+260+N+Juniper+St,+Escondido,+CA+92025",
   instagram: "https://www.instagram.com/reyestirespro/",
   yelp: "https://www.yelp.com/biz/reyes-tires-pro-escondido",
 

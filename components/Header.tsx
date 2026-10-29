@@ -13,7 +13,7 @@ export default function Header({ lang, home = true }: { lang: Lang; home?: boole
   const [open, setOpen] = useState(false);
   // On guide pages the section links point back to the home page.
   const href = (h: string) => (home ? h : `${t.home}${h}`);
-  const links = [...t.nav.map((l) => ({ ...l, href: href(l.href), wide: false })), ...t.guidesNav.map((l) => ({ ...l, wide: true }))];
+  const links = [...t.nav.map((l) => ({ ...l, href: href(l.href), wide: false })), ...t.guidesNav.map((l, i) => ({ ...l, wide: i > 0 }))];
 
   return (
     <header className="sticky top-0 z-50 border-b border-sand-200/70 bg-sand-50/90 backdrop-blur">

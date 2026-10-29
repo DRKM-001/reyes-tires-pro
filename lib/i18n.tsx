@@ -13,6 +13,7 @@ const en = {
     { href: "#faq", label: "FAQ" },
   ],
   guidesNav: [
+    { href: "/tires/", label: "Tire sizes" },
     { href: "/tire-size-guide/", label: "Size guide" },
     { href: "/tire-basics/", label: "Tire basics" },
   ],
@@ -145,7 +146,8 @@ const es: Dict = {
     { href: "#faq", label: "Preguntas" },
   ],
   guidesNav: [
-    { href: "/es/medidas-de-llantas/", label: "Medidas" },
+    { href: "/es/llantas/", label: "Medidas de llantas" },
+    { href: "/es/medidas-de-llantas/", label: "Cómo leer la medida" },
     { href: "/es/llantas-basico/", label: "Lo básico" },
   ],
   getQuote: "Pedir Precio",

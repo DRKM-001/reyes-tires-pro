@@ -6,7 +6,7 @@ import { useSyncExternalStore } from "react";
 import type { QuoteDraft } from "./core";
 
 const KEY = "tire-quote-draft";
-const empty: QuoteDraft = { size: "", qty: 4, condition: "either", vehicle: "", name: "" };
+const empty: QuoteDraft = { mode: "tires", size: "", qty: 4, condition: "either", wheelSize: "", style: "", vehicle: "", name: "" };
 let state: QuoteDraft = empty;
 let loaded = false;
 const listeners = new Set<() => void>();

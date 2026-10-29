@@ -4,6 +4,7 @@ import { site } from "@/lib/site";
 import { WhatsAppIcon } from "./icons";
 import Wordmark from "./Wordmark";
 import ShopWaLink from "./ShopWaLink";
+import { services as svcList, serviceHref, serviceBase } from "@/lib/services";
 
 export default function Footer({ t }: { t: Dict }) {
   const f = t.footer;
@@ -11,7 +12,7 @@ export default function Footer({ t }: { t: Dict }) {
   const link = "text-blaze-100/80 transition-colors hover:text-white";
   const explore = [
     { label: t.nav[0].label, href: `${t.home}#shop` },
-    { label: t.nav[1].label, href: `${t.home}#services` },
+    { label: t.nav[1].label, href: serviceBase[t.lang] },
     { label: t.nav[3].label, href: `${t.home}#faq` },
     ...t.guidesNav,
     { label: t.otherLang.label, href: t.otherLang.href },
@@ -61,7 +62,7 @@ export default function Footer({ t }: { t: Dict }) {
         <div>
           <h3 className="font-display text-sm font-bold uppercase tracking-widest text-white">{f.servicesH}</h3>
           <ul className="mt-4 space-y-2.5 text-sm">
-            {t.services.items.map((s) => <li key={s.title}><a href={`${t.home}#services`} className={link}>{s.title}</a></li>)}
+            {svcList.map((s) => <li key={s.id}><a href={serviceHref(s, t.lang)} className={link}>{s.copy[t.lang].title}</a></li>)}
           </ul>
         </div>
 

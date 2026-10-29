@@ -5,7 +5,10 @@ export type Lang = "en" | "es";
 export type Condition = "used" | "new" | "either";
 
 export interface QuoteRequest {
-  size: string;            // e.g. "225/45R17" or "LT265/70R17"
+  mode?: "tires" | "wheels" | "package"; // default "tires"
+  size: string;            // tire size, e.g. "225/45R17" (optional for wheels / package)
+  wheelSize?: string;      // wheels / package: rim diameter, e.g. "20"
+  style?: string;          // wheels / package: finish, e.g. "black"
   qty: 1 | 2 | 4;
   condition: Condition;
   name?: string;

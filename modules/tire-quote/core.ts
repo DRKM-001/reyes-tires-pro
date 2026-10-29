@@ -5,13 +5,33 @@ export type Lang = "en" | "es";
 export type Condition = "used" | "new" | "either";
 export type Qty = 1 | 2 | 4;
 
+export type QuoteMode = "tires" | "wheels" | "package";
+
 export interface QuoteDraft {
-  size: string;
+  mode?: QuoteMode;     // default "tires"
+  size: string;         // tire size (tires; optional for package)
   qty: Qty;
-  condition: Condition;
+  condition: Condition; // tires only
+  wheelSize?: string;   // wheels / package: rim diameter in inches, e.g. "20"
+  style?: string;       // wheels / package: finish or look, e.g. "black", "chrome"
   vehicle?: string;
   name?: string;
   notes?: string;
+}
+
+/** Wheel diameter from loose input: '20', '20"', '20 in', 'r20' -> "20" ("" when not a sane rim size). */
+export function normalizeWheelSize(input?: string): string {
+  const m = (input || "").match(/(\d{2})(?:\.(5))?/);
+  if (!m) return "";
+  const d = +m[1];
+  return d >= 13 && d <= 30 ? (m[2] ? `${d}.5` : `${d}`) : "";
+}
+
+/** True when the draft holds enough to send a specific request (vs. the generic hello). */
+export function draftReady(q: Partial<QuoteDraft>): boolean {
+  const mode = q.mode ?? "tires";
+  if (mode === "tires") return isPlausibleSize(normalizeSize(q.size || ""));
+  return !!(normalizeWheelSize(q.wheelSize) || (q.vehicle || "").trim().length >= 3 || (mode === "package" && isPlausibleSize(normalizeSize(q.size || ""))));
 }
 
 export type SizeKind = "metric" | "flotation" | "truck" | "unknown";
@@ -111,27 +131,47 @@ export const genericMessage: Record<Lang, string> = {
   es: "Hola, quisiera un precio de llantas.",
 };
 
+export const genericByMode: Record<Lang, Record<"wheels" | "package", string>> = {
+  en: { wheels: "Hi, I would like a quote on wheels.", package: "Hi, I would like a quote on a wheel & tire package." },
+  es: { wheels: "Hola, quisiera un precio de rines.", package: "Hola, quisiera un precio de un paquete de rines con llantas." },
+};
+
 export const photoMessage: Record<Lang, string> = {
   en: "Hi, I'd like a quote. I'll send a photo of my tire's sidewall.",
   es: "Hola, quisiera un precio. Le mando una foto del costado de mi llanta.",
 };
 
-/** The WhatsApp message for a draft. Falls back to the generic message when there is no usable size. */
+/** The WhatsApp message for a draft. Falls back to the generic message when the draft is not ready. */
 export function quoteMessage(q: Partial<QuoteDraft> & { lang: Lang }): string {
-  const size = normalizeSize(q.size || "");
-  if (!isPlausibleSize(size)) return genericMessage[q.lang];
+  const mode = q.mode ?? "tires";
+  if (!draftReady(q)) return mode === "tires" ? genericMessage[q.lang] : genericByMode[q.lang][mode];
   const qty = (q.qty ?? 4) as Qty;
   const c = q.condition ?? "either";
+  const size = normalizeSize(q.size || "");
+  const hasTire = isPlausibleSize(size);
+  const wheel = normalizeWheelSize(q.wheelSize);
+  const es = q.lang === "es";
   const lines: string[] = [];
-  if (q.lang === "es") {
-    lines.push(`Hola, quisiera un precio para ${qty} llanta${qty === 1 ? "" : "s"} ${cond.es[c]}, medida ${size}.`);
-    if (q.vehicle) lines.push(`Vehículo: ${q.vehicle}`);
-    if (q.name) lines.push(`Nombre: ${q.name}`);
+  const wheelsWord = es ? `rin${qty === 1 ? "" : "es"}` : `wheel${qty === 1 ? "" : "s"}`;
+  const inch = wheel ? (es ? ` de ${wheel}"` : ` (${wheel}")`) : "";
+
+  if (mode === "tires") {
+    lines.push(es
+      ? `Hola, quisiera un precio para ${qty} llanta${qty === 1 ? "" : "s"} ${cond.es[c]}, medida ${size}.`
+      : `Hi, I would like a quote for ${qty} ${cond.en[c]} tire${qty === 1 ? "" : "s"}, size ${size}.`);
+  } else if (mode === "wheels") {
+    lines.push(es
+      ? `Hola, quisiera un precio para ${qty} ${wheelsWord}${inch}.`
+      : `Hi, I would like a quote for ${qty} ${wheelsWord}${inch}.`);
   } else {
-    lines.push(`Hi, I would like a quote for ${qty} ${cond.en[c]} tire${qty === 1 ? "" : "s"}, size ${size}.`);
-    if (q.vehicle) lines.push(`Vehicle: ${q.vehicle}`);
-    if (q.name) lines.push(`Name: ${q.name}`);
+    const tirePart = hasTire ? (es ? `con llantas ${cond.es[c]} ${size}` : `with ${cond.en[c]} ${size} tires`) : (es ? "con llantas (recomiéndenme la medida)" : "with tires (please recommend the size)");
+    lines.push(es
+      ? `Hola, quisiera un precio para un paquete de ${qty} ${wheelsWord}${inch} ${tirePart}.`
+      : `Hi, I would like a quote for a wheel & tire package: ${qty} ${wheelsWord}${inch} ${tirePart}.`);
   }
+  if (q.vehicle) lines.push(`${es ? "Vehículo" : "Vehicle"}: ${q.vehicle}`);
+  if (mode !== "tires" && q.style) lines.push(`${es ? "Estilo" : "Style"}: ${q.style}`);
+  if (q.name) lines.push(`${es ? "Nombre" : "Name"}: ${q.name}`);
   if (q.notes) lines.push(q.notes);
   return lines.join("\n");
 }

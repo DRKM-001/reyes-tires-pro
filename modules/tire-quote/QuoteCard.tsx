@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Camera, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
+import { Camera, CheckCircle2, AlertTriangle, CircleDot, Disc3, Layers } from "lucide-react";
 import { setDraft } from "./store";
 import { useQuoteLink } from "./useQuoteLink";
 import { quoteStrings } from "./strings";
-import { photoMessage, whatsappUrl, type Condition, type Lang, type Qty } from "./core";
+import { photoMessage, whatsappUrl, normalizeWheelSize, type Condition, type Lang, type Qty, type QuoteMode } from "./core";
 
 export interface QuoteConfig {
   whatsapp: string;          // wa.me format, e.g. "16195641742"
@@ -13,6 +14,9 @@ export interface QuoteConfig {
   sizeHelpHref?: string;     // link to a "how to read a tire size" page
   logEndpoint?: string;      // e.g. "/api/quote"; leads are POSTed here in the background
   onEvent?: (name: string, data?: Record<string, string>) => void; // analytics hook
+  /** Optional: endpoint that delivers the request to the shop without WhatsApp (email/SMS/RavnPro).
+   *  Only set this when a delivery channel is configured; the form shows an error if nothing was delivered. */
+  directEndpoint?: string;
 }
 
 const field =
@@ -51,17 +55,96 @@ function logLead(endpoint: string, body: object) {
 
 export default function QuoteCard({ lang, config }: { lang: Lang; config: QuoteConfig }) {
   const s = quoteStrings[lang];
-  const { href, message, size, hasSize, valid, draft } = useQuoteLink(config.whatsapp, lang);
+  const { href, message, size, hasSize, valid, label: btnLabel, mode, draft } = useQuoteLink(config.whatsapp, lang);
   // Controlled input shows what the customer typed; the message uses the normalized size.
   const [typed, setTyped] = useState("");
-  useEffect(() => { if (draft.size && !typed) setTyped(draft.size); }, [draft.size]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (draft.size !== typed && document.activeElement?.id !== "q-size") setTyped(draft.size); }, [draft.size]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const [direct, setDirect] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [dState, setDState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const phoneOk = phone.replace(/\D/g, "").length >= 10;
+
+  async function sendDirect() {
+    if (!config.directEndpoint || !phoneOk || !hasSize) return;
+    setDState("sending");
+    try {
+      const r = await fetch(config.directEndpoint, { method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ mode, size: size || undefined, wheelSize: normalizeWheelSize(draft.wheelSize) || undefined, style: draft.style || undefined, qty: draft.qty, condition: draft.condition,
+          vehicle: draft.vehicle || undefined, name: draft.name || undefined, phone, lang, source: location.pathname, direct: true }) });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok && Array.isArray(j.delivered) && j.delivered.length > 0) { setDState("sent"); config.onEvent?.("quote_direct", { mode, size: size || "" }); }
+      else setDState("error");
+    } catch { setDState("error"); }
+  }
 
   function send() {
-    config.onEvent?.("whatsapp_quote", { size });
+    config.onEvent?.(hasSize ? "whatsapp_quote" : "whatsapp", { mode, size: size || "", wheel: normalizeWheelSize(draft.wheelSize) });
     if (hasSize && config.logEndpoint) {
-      logLead(config.logEndpoint, { size, qty: draft.qty, condition: draft.condition, vehicle: draft.vehicle || undefined, name: draft.name || undefined, lang, source: location.pathname });
+      logLead(config.logEndpoint, { mode, size: size || undefined, wheelSize: normalizeWheelSize(draft.wheelSize) || undefined, style: draft.style || undefined, qty: draft.qty, condition: draft.condition, vehicle: draft.vehicle || undefined, name: draft.name || undefined, lang, source: location.pathname });
     }
   }
+
+  const tabs: { id: QuoteMode; label: string; Icon: typeof CircleDot }[] = [
+    { id: "tires", label: s.tabs.tires, Icon: CircleDot },
+    { id: "wheels", label: s.tabs.wheels, Icon: Disc3 },
+    { id: "package", label: s.tabs.package, Icon: Layers },
+  ];
+  const wheelChips = ["17", "18", "20", "22"];
+  const wheelNow = normalizeWheelSize(draft.wheelSize);
+  const tireBig = mode === "tires";
+
+  const sizeField = (
+    <div>
+      <label htmlFor="q-size" className={label}>{tireBig ? s.size : <>{s.tireOptional} <span className="font-medium normal-case text-sand-200/50">{s.optional}</span></>}</label>
+      <input id="q-size" value={typed} inputMode="text" enterKeyHint="send" aria-describedby="q-size-read"
+        onChange={(e) => { const v = e.target.value.toUpperCase(); setTyped(v); setDraft({ size: v }); }}
+        onBlur={() => { if (valid && size !== typed) { setTyped(size); setDraft({ size }); } }}
+        placeholder="225/45R17" autoComplete="off" autoCapitalize="characters" spellCheck={false} maxLength={24}
+        className={tireBig
+          ? "w-full border-0 border-b-2 border-sand-200/25 bg-transparent px-0 pb-1 font-display text-5xl font-bold uppercase tracking-wide text-sand-50 outline-none placeholder:text-sand-200/25 focus:border-blaze-500 sm:text-6xl"
+          : `${field} font-display text-xl font-bold uppercase tracking-wide`} />
+      <p id="q-size-read" aria-live="polite" className="mt-2 min-h-[1.25rem] text-sm font-semibold">
+        {typed && valid && <span className="inline-flex items-center gap-1.5 text-wa-500"><CheckCircle2 className="h-4 w-4" />{s.readAs(size)}</span>}
+        {typed && !valid && /\d{3,}/.test(typed.replace(/\D/g, "")) && <span className="inline-flex items-start gap-1.5 font-medium text-amber-300"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />{s.check}</span>}
+      </p>
+      <p className="mt-1 text-xs text-sand-200/60">
+        {tireBig ? <>{s.sizeHint}.{config.sizeHelpHref && <> <a href={config.sizeHelpHref} className="underline hover:text-sand-50">{s.sizeHelp}</a></>}</> : s.tireOptionalHint}
+      </p>
+    </div>
+  );
+
+  const vehicleField = (big: boolean) => (
+    <div>
+      <label htmlFor="q-vehicle" className={label}>{big ? s.vehicleReq : <>{s.vehicle} <span className="font-medium normal-case text-sand-200/50">{s.optional}</span></>}</label>
+      <input id="q-vehicle" className={field} placeholder={big ? s.vehicleReqPh : s.vehiclePh} value={draft.vehicle ?? ""} onChange={(e) => setDraft({ vehicle: e.target.value })} />
+    </div>
+  );
+  const nameField = (
+    <div>
+      <label htmlFor="q-name" className={label}>{s.name} <span className="font-medium normal-case text-sand-200/50">{s.optional}</span></label>
+      <input id="q-name" className={field} placeholder={s.namePh} value={draft.name ?? ""} onChange={(e) => setDraft({ name: e.target.value })} autoComplete="given-name" />
+    </div>
+  );
+  const qtyChips = <div><span className={label}>{s.qty}</span><Chips name={s.qty} value={draft.qty} set={(v: Qty) => setDraft({ qty: v })} options={[{ v: 1 as Qty, l: "1" }, { v: 2 as Qty, l: "2" }, { v: 4 as Qty, l: "4" }]} /></div>;
+  const typeChips = <div><span className={label}>{s.type}</span><Chips name={s.type} value={draft.condition} set={(v: Condition) => setDraft({ condition: v })} options={[{ v: "used" as Condition, l: s.used }, { v: "new" as Condition, l: s.new }, { v: "either" as Condition, l: s.either }]} /></div>;
+  const wheelField = (
+    <div>
+      <span className={label}>{s.wheelSize}</span>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <Chips name={s.wheelSize} value={wheelChips.includes(wheelNow) ? wheelNow : ""} set={(v: string) => setDraft({ wheelSize: v })} options={wheelChips.map((w) => ({ v: w, l: `${w}"` }))} />
+        <input aria-label={`${s.wheelSize}: ${s.other}`} inputMode="decimal" placeholder={s.other} maxLength={5}
+          value={wheelChips.includes(wheelNow) ? "" : draft.wheelSize ?? ""} onChange={(e) => setDraft({ wheelSize: e.target.value })}
+          className="w-20 rounded-md border border-sand-200/15 bg-ink-950/40 px-2.5 py-1.5 text-sm text-sand-50 outline-none placeholder:text-sand-200/40 focus:border-blaze-500" />
+      </div>
+    </div>
+  );
+  const styleField = (
+    <div>
+      <label htmlFor="q-style" className={label}>{s.style} <span className="font-medium normal-case text-sand-200/50">{s.optional}</span></label>
+      <input id="q-style" className={field} placeholder={s.stylePh} value={draft.style ?? ""} onChange={(e) => setDraft({ style: e.target.value })} />
+    </div>
+  );
 
   return (
     <div id="quote" className="relative scroll-mt-24">
@@ -72,40 +155,37 @@ export default function QuoteCard({ lang, config }: { lang: Lang; config: QuoteC
           <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-wa-500 text-ink-950"><WhatsAppGlyph className="h-5 w-5" /></span>
           <div>
             <p className="font-display text-xl font-bold uppercase tracking-wide text-sand-50">{s.title}</p>
-            <p className="text-xs text-sand-200/70">{s.sub}</p>
+            <p className="text-xs text-sand-200/70">{s.subs[mode]}</p>
           </div>
         </div>
 
-        <div className="mt-5 space-y-4">
-          <div>
-            <label htmlFor="q-size" className={label}>{s.size}</label>
-            <input id="q-size" value={typed} inputMode="text" enterKeyHint="send" aria-describedby="q-size-read"
-              onChange={(e) => { const v = e.target.value.toUpperCase(); setTyped(v); setDraft({ size: v }); }}
-              onBlur={() => { if (valid && size !== typed) { setTyped(size); setDraft({ size }); } }}
-              placeholder="225/45R17" autoComplete="off" autoCapitalize="characters" spellCheck={false} maxLength={24}
-              className="w-full border-0 border-b-2 border-sand-200/25 bg-transparent px-0 pb-1 font-display text-5xl font-bold uppercase tracking-wide text-sand-50 outline-none placeholder:text-sand-200/25 focus:border-blaze-500 sm:text-6xl" />
-            <p id="q-size-read" aria-live="polite" className="mt-2 min-h-[1.25rem] text-sm font-semibold">
-              {typed && valid && <span className="inline-flex items-center gap-1.5 text-wa-500"><CheckCircle2 className="h-4 w-4" />{s.readAs(size)}</span>}
-              {typed && !valid && /\d{3,}/.test(typed.replace(/\D/g, "")) && <span className="inline-flex items-start gap-1.5 font-medium text-amber-300"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />{s.check}</span>}
-            </p>
-            <p className="mt-1 text-xs text-sand-200/60">
-              {s.sizeHint}.{config.sizeHelpHref && <> <a href={config.sizeHelpHref} className="underline hover:text-sand-50">{s.sizeHelp}</a></>}
-            </p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-[auto_1fr]">
-            <div><span className={label}>{s.qty}</span><Chips name={s.qty} value={draft.qty} set={(v: Qty) => setDraft({ qty: v })} options={[{ v: 1 as Qty, l: "1" }, { v: 2 as Qty, l: "2" }, { v: 4 as Qty, l: "4" }]} /></div>
-            <div><span className={label}>{s.type}</span><Chips name={s.type} value={draft.condition} set={(v: Condition) => setDraft({ condition: v })} options={[{ v: "used" as Condition, l: s.used }, { v: "new" as Condition, l: s.new }, { v: "either" as Condition, l: s.either }]} /></div>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="q-vehicle" className={label}>{s.vehicle} <span className="font-medium normal-case text-sand-200/50">{s.optional}</span></label>
-              <input id="q-vehicle" className={field} placeholder={s.vehiclePh} value={draft.vehicle ?? ""} onChange={(e) => setDraft({ vehicle: e.target.value })} />
-            </div>
-            <div>
-              <label htmlFor="q-name" className={label}>{s.name} <span className="font-medium normal-case text-sand-200/50">{s.optional}</span></label>
-              <input id="q-name" className={field} placeholder={s.namePh} value={draft.name ?? ""} onChange={(e) => setDraft({ name: e.target.value })} autoComplete="given-name" />
-            </div>
-          </div>
+        <div role="tablist" aria-label={s.title} className="mt-5 grid grid-cols-3 gap-1 rounded-lg bg-ink-950/50 p-1">
+          {tabs.map(({ id, label: l, Icon }) => (
+            <button key={id} type="button" role="tab" aria-selected={mode === id} onClick={() => setDraft({ mode: id })}
+              className={`inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-2 text-[13px] font-bold uppercase tracking-wide transition-colors sm:text-sm ${mode === id ? "bg-blaze-500 text-white shadow" : "text-sand-200/80 hover:bg-sand-50/10 hover:text-sand-50"}`}>
+              <Icon className="h-4 w-4 shrink-0" /><span className="truncate">{l}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-5 space-y-4" role="tabpanel">
+          {mode === "tires" && <>
+            {sizeField}
+            <div className="grid gap-4 sm:grid-cols-[auto_1fr]">{qtyChips}{typeChips}</div>
+            <div className="grid gap-4 sm:grid-cols-2">{vehicleField(false)}{nameField}</div>
+          </>}
+          {mode === "wheels" && <>
+            {vehicleField(true)}
+            <div className="grid gap-4 sm:grid-cols-[1fr_auto]">{wheelField}{qtyChips}</div>
+            <div className="grid gap-4 sm:grid-cols-2">{styleField}{nameField}</div>
+          </>}
+          {mode === "package" && <>
+            {vehicleField(true)}
+            <div className="grid gap-4 sm:grid-cols-[1fr_auto]">{wheelField}{qtyChips}</div>
+            {sizeField}
+            {typeChips}
+            <div className="grid gap-4 sm:grid-cols-2">{styleField}{nameField}</div>
+          </>}
         </div>
 
         {/* What will actually be sent */}
@@ -117,15 +197,39 @@ export default function QuoteCard({ lang, config }: { lang: Lang; config: QuoteC
         {/* A real link, so it works even before JavaScript loads. */}
         <a href={href} target="_blank" rel="noopener noreferrer" onClick={send}
           className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-wa-500 px-6 py-3.5 text-center font-bold uppercase tracking-wide text-ink-950 transition-colors hover:bg-wa-600">
-          <WhatsAppGlyph className="h-5 w-5 shrink-0" />{hasSize ? s.sendWith(size) : s.send}
+          <WhatsAppGlyph className="h-5 w-5 shrink-0" />{hasSize ? s.sendWith(btnLabel) : s.send}
         </a>
         <div className="mt-3 flex flex-col items-center gap-1 text-center text-xs text-sand-200/60">
-          <a href={whatsappUrl(config.whatsapp, photoMessage[lang])} target="_blank" rel="noopener noreferrer" onClick={() => config.onEvent?.("whatsapp_photo")}
-             className="inline-flex items-center gap-1.5 hover:text-sand-50">
-            <Camera className="h-3.5 w-3.5" />{s.photo} <span className="underline">{s.photoLink}</span>
-          </a>
+          {mode === "tires" && (
+            <a href={whatsappUrl(config.whatsapp, photoMessage[lang])} target="_blank" rel="noopener noreferrer" onClick={() => config.onEvent?.("whatsapp_photo")}
+               className="inline-flex items-center gap-1.5 hover:text-sand-50">
+              <Camera className="h-3.5 w-3.5" />{s.photo} <span className="underline">{s.photoLink}</span>
+            </a>
+          )}
           <span className="text-sand-200/40">{s.opens(config.whatsappDisplay)}</span>
+          {config.directEndpoint && !direct && (
+            <button type="button" onClick={() => setDirect(true)} className="mt-1 underline hover:text-sand-50">{s.noWa}</button>
+          )}
         </div>
+        {config.directEndpoint && direct && (
+          <div className="mt-4 rounded-lg border border-sand-200/15 bg-ink-950/40 p-4">
+            {dState === "sent" ? (
+              <p className="text-sm font-semibold text-wa-500" aria-live="polite">{s.directSent(phone)}</p>
+            ) : (
+              <>
+                <label htmlFor="q-phone" className={label}>{s.phone}</label>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <input id="q-phone" type="tel" inputMode="tel" autoComplete="tel" className={field} placeholder="(760) 555-0100" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  <button type="button" onClick={sendDirect} disabled={!phoneOk || !hasSize || dState === "sending"}
+                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-blaze-500 px-5 py-2.5 font-bold uppercase tracking-wide text-white disabled:opacity-40">
+                    {dState === "sending" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}{s.directSend}
+                  </button>
+                </div>
+                <p className="mt-2 text-xs text-sand-200/60">{dState === "error" ? <span className="text-amber-300">{s.directError}</span> : s.directHint}</p>
+              </>
+            )}
+          </div>
+        )}
       </form>
     </div>
   );

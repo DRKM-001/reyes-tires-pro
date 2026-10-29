@@ -10,4 +10,7 @@ export const quoteConfig = (lang: Lang): QuoteConfig => ({
   sizeHelpHref: lang === "es" ? "/es/medidas-de-llantas/" : "/tire-size-guide/",
   logEndpoint: "/api/quote",
   onEvent: (name, data) => track(name, data),
+  // Turned on at build time once quote delivery (email/SMS/RavnPro) is configured in Cloudflare:
+  // set NEXT_PUBLIC_DIRECT_QUOTES=1 together with RESEND_API_KEY + QUOTE_EMAIL_TO (or QUOTE_WEBHOOK_URL).
+  directEndpoint: process.env.NEXT_PUBLIC_DIRECT_QUOTES === "1" ? "/api/quote" : undefined,
 });
