@@ -3,6 +3,7 @@ import type { Dict } from "@/lib/i18n";
 import { site } from "@/lib/site";
 import { WhatsAppIcon } from "./icons";
 import Wordmark from "./Wordmark";
+import ShopWaLink from "./ShopWaLink";
 
 export default function Footer({ t }: { t: Dict }) {
   const f = t.footer;
@@ -31,10 +32,10 @@ export default function Footer({ t }: { t: Dict }) {
             <a href={`${t.home}#quote`} className="group inline-flex items-center gap-2 rounded-md bg-blaze-500 px-6 py-3 font-bold uppercase tracking-wide text-white shadow-blaze hover:bg-blaze-600">
               {f.ctaQuote}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </a>
-            <a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener noreferrer" data-track="whatsapp"
+            <ShopWaLink lang={t.lang}
                className="inline-flex items-center gap-2 rounded-md bg-wa-500 px-6 py-3 font-bold uppercase tracking-wide text-ink-950 hover:bg-wa-600">
               <WhatsAppIcon className="h-4 w-4" />{f.ctaWa}
-            </a>
+            </ShopWaLink>
           </div>
         </div>
       </div>
@@ -76,7 +77,7 @@ export default function Footer({ t }: { t: Dict }) {
           <ul className="mt-4 space-y-3 text-sm">
             <li><a href={site.mapsHref} target="_blank" rel="noopener noreferrer" className={`flex items-start gap-2.5 ${link}`}><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-blaze-500" /><span>{site.address}<br /><span className="text-sand-200/50">{t.visit.corner}</span></span></a></li>
             <li><a href={site.phoneHref} data-track="call" className={`flex items-center gap-2.5 ${link}`}><Phone className="h-4 w-4 shrink-0 text-blaze-500" />{site.phone}</a></li>
-            <li><a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener noreferrer" data-track="whatsapp" className={`flex items-center gap-2.5 ${link}`}><WhatsAppIcon className="h-4 w-4 shrink-0 text-blaze-500" />WhatsApp {site.whatsappDisplay}</a></li>
+            <li><ShopWaLink lang={t.lang} className={`flex items-center gap-2.5 ${link}`}><WhatsAppIcon className="h-4 w-4 shrink-0 text-blaze-500" />WhatsApp {site.whatsappDisplay}</ShopWaLink></li>
             <li className="flex items-start gap-2.5 pt-1 text-sand-200/75">
               <Clock className="mt-0.5 h-4 w-4 shrink-0 text-blaze-500" />
               <span className="w-full space-y-0.5">{f.hoursShort.map((h) => <span key={h.d} className="flex justify-between gap-6"><span>{h.d}</span><span className="text-sand-200/55">{h.t}</span></span>)}</span>

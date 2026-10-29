@@ -1,7 +1,7 @@
 import { Star, MapPin, ArrowRight } from "lucide-react";
 import type { Dict } from "@/lib/i18n";
 import { site } from "@/lib/site";
-import QuoteCard from "./QuoteCard";
+import HeroQuote from "./HeroQuote";
 import OpenStatus from "./OpenStatus";
 
 export default function Hero({ t }: { t: Dict }) {
@@ -47,7 +47,7 @@ export default function Hero({ t }: { t: Dict }) {
           </div>
         </div>
 
-        <QuoteCard lang={t.lang} />
+        <HeroQuote lang={t.lang} />
       </div>
     </section>
   );

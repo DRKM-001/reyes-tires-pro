@@ -1,6 +1,7 @@
 import { json, fail, sameOrigin, clip, type Env } from "../../lib/api-server";
 import { normalizeSize, isPlausibleSize, quoteMessage, whatsappUrl } from "../../lib/quote";
 import type { QuoteRequest, QuoteResponse, Condition, Lang } from "../../lib/api-types";
+import { site } from "../../lib/site";
 
 // POST /api/quote
 // Today: validates the request and returns the prefilled WhatsApp link.
@@ -54,7 +55,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
   }
   if (jobs.length) waitUntil(Promise.allSettled(jobs));
 
-  const body: QuoteResponse = { ok: true, id, whatsappUrl: whatsappUrl(message), delivered };
+  const body: QuoteResponse = { ok: true, id, whatsappUrl: whatsappUrl(site.whatsapp, message), delivered };
   return json(body, 201);
 };
 

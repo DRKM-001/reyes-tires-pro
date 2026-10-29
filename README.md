@@ -15,7 +15,7 @@ The vision, goals, milestones, open questions and decision log are in [ROADMAP.m
 |---|---|
 | Shop facts (phone, hours, rating, brands, reviews) | `lib/site.ts`, the single source for pages, JSON-LD and the API |
 | All page text, English and Spanish | `lib/i18n.tsx` |
-| Quote rules (size normalizing, WhatsApp message) | `lib/quote.ts`, shared by the site and `/api/quote` |
+| Quote feature (form, shared draft, WhatsApp buttons, size parser) | `modules/tire-quote/`, a reusable module, see its README. This shop's settings are in `components/quoteConfig.ts` |
 | API contract | `lib/api-types.ts`, `lib/api-client.ts` |
 | Sections | `components/*.tsx` |
 | Pages | `app/(en)/...` and `app/(es)/es/...` (each language has its own root layout, so `<html lang>` is correct) |

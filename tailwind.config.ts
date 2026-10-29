@@ -4,7 +4,7 @@ import type { Config } from "tailwindcss";
 // Escondido identity: the pole-sign blue is the primary accent ("blaze"),
 // logo red is the secondary accent ("royal"). Swap these two blocks to flip the identity.
 const config: Config = {
-  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./modules/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {

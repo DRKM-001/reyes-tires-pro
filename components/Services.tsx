@@ -1,6 +1,6 @@
 import type { Dict } from "@/lib/i18n";
-import { site } from "@/lib/site";
 import { serviceIcons, WhatsAppIcon } from "./icons";
+import ShopWaLink from "./ShopWaLink";
 
 export default function Services({ t }: { t: Dict }) {
   const s = t.services;
@@ -26,13 +26,13 @@ export default function Services({ t }: { t: Dict }) {
               </div>
             );
           })}
-          <a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener noreferrer" data-track="whatsapp"
+          <ShopWaLink lang={t.lang}
              className="group flex flex-col rounded-xl border border-ink-900 bg-ink-900 p-6 text-sand-50 shadow-card transition-all hover:-translate-y-1">
             <div className="clip-slash flex h-12 w-12 items-center justify-center bg-royal-500 text-white"><More className="h-6 w-6" /></div>
             <h3 className="mt-5 font-display text-xl font-semibold uppercase tracking-wide">{s.more.title}</h3>
             <p className="mt-2 text-[15px] leading-relaxed text-sand-200/80">{s.more.desc}</p>
             <span className="mt-auto inline-flex items-center gap-2 pt-4 text-sm font-bold uppercase tracking-wide text-wa-500"><WhatsAppIcon className="h-4 w-4" />{s.more.cta}</span>
-          </a>
+          </ShopWaLink>
         </div>
       </div>
     </section>

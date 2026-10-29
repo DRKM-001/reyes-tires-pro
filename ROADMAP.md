@@ -65,6 +65,14 @@ The owner preferred the look of reyestires.com (the Spring Valley shop's site) a
 - No logo or drawn graphics: a type wordmark until the shop provides its files.
 - Backend-ready API (Cloudflare Pages Functions): `/api/health`, `/api/shop`, `/api/hours`, `/api/quote`, `/api/inventory`. Typed contract in `lib/api-types.ts`, documented in `docs/API.md`. Quote delivery (webhook, email through Resend, KV storage) and inventory switch on with environment variables, without code changes.
 
+### M0.7: Stronger quote (2026-10-29)
+- Bug fixed: on phones, the bottom-bar WhatsApp button (and five others) sent a generic message, so the size the customer typed never reached the shop. Every WhatsApp button now carries the quote. The draft is shared across the page and kept for the visit.
+- The bottom bar steps aside while the quote form is on screen. Once a size is typed, it reads "Send 225/45R17".
+- A live preview of the exact message. The send button names the size.
+- "No size handy? Send us a photo of your tire" opens WhatsApp ready for a photo.
+- The quote feature is now a reusable module (`modules/tire-quote/`), ready for reyestires.com and losreyestires.com.
+- Next: on desktop, an option to send the request without leaving the page (phone number, the shop is notified by email), and later the WhatsApp Business API for automatic confirmations.
+
 ### M1: Live and on the map (target 2026-11-15 to 11-30)
 - [x] Live at https://reyestirespro.com, auto-deployed from `main` (2026-10-28).
 Still needs the shop or Greg (see "Open questions"):

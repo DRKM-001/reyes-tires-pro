@@ -11,5 +11,5 @@
     "baseUrl": "..",
     "paths": { "@/*": ["./*"] }
   },
-  "include": ["./**/*.ts", "../lib/site.ts", "../lib/hours.ts", "../lib/api-types.ts", "../lib/quote.ts", "../lib/api-server.ts"]
+  "include": ["./**/*.ts", "../lib/site.ts", "../lib/hours.ts", "../lib/api-types.ts", "../lib/quote.ts", "../lib/api-server.ts", "../modules/tire-quote/core.ts"]
 }

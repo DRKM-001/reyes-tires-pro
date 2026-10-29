@@ -8,6 +8,7 @@ import { site } from "@/lib/site";
 import { shopNow } from "@/lib/hours";
 import { WhatsAppIcon } from "./icons";
 import OpenStatus from "./OpenStatus";
+import ShopWaLink from "./ShopWaLink";
 import { track } from "./track";
 
 export default function Visit({ lang }: { lang: Lang; }) {
@@ -43,14 +44,14 @@ export default function Visit({ lang }: { lang: Lang; }) {
                 <p className="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-blaze-600">{v.tapCall}<ArrowRight className="h-3.5 w-3.5" /></p>
               </div>
             </a>
-            <a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener noreferrer" onClick={() => track("whatsapp")} className={card}>
+            <ShopWaLink lang={lang} className={card}>
               <WhatsAppIcon className="mt-0.5 h-5 w-5 shrink-0 text-wa-600" />
               <div>
                 <p className="font-semibold text-stone-850">{v.whatsapp}</p>
                 <p className="text-stone-750">{site.whatsappDisplay}</p>
                 <p className="mt-1 text-sm font-semibold text-wa-600">{v.anytime}</p>
               </div>
-            </a>
+            </ShopWaLink>
           </div>
 
           <div className="rounded-xl border border-sand-200 bg-white p-6 shadow-card">
