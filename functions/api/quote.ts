@@ -6,7 +6,7 @@ import { site } from "../../lib/site";
 // POST /api/quote
 // Today: validates the request and returns the prefilled WhatsApp link.
 // When a backend is connected (env vars below), it also delivers the lead:
-//   QUOTE_WEBHOOK_URL -> JSON POST,  RESEND_API_KEY + QUOTE_EMAIL_TO -> email,  LEADS (KV) -> stored copy.
+//   QUOTE_WEBHOOK_URL -> JSON POST,  RESEND_API_KEY -> email (to QUOTE_EMAIL_TO, default site.email),  LEADS (KV) -> stored copy.
 export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
   if (!sameOrigin(request)) return fail(403, "forbidden_origin", "Requests must come from the Reyes Tires Pro website.");
   if (Number(request.headers.get("content-length") || 0) > 4096) return fail(413, "too_large", "Request is too large.");
@@ -40,14 +40,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     delivered.push("webhook");
     jobs.push(fetch(env.QUOTE_WEBHOOK_URL, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(lead) }));
   }
-  if (env.RESEND_API_KEY && env.QUOTE_EMAIL_TO) {
+  if (env.RESEND_API_KEY) {
     delivered.push("email");
     jobs.push(fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
       body: JSON.stringify({
         from: env.QUOTE_EMAIL_FROM || "Reyes Tires Pro <onboarding@resend.dev>",
-        to: env.QUOTE_EMAIL_TO.split(",").map((s) => s.trim()),
+        to: (env.QUOTE_EMAIL_TO || site.email).split(",").map((s) => s.trim()),
         subject: `Quote request ${id}: ${q.mode === "tires" ? `${q.qty} x ${q.size} (${q.condition})` : q.mode === "wheels" ? `${q.qty} wheels ${q.wheelSize ?? ""}` : `wheel & tire package ${q.wheelSize ?? ""}`}`,
         text: `${message}\n\nCustomer phone: ${q.phone ?? "(sent through WhatsApp)"}\nLanguage: ${q.lang}\nPage: ${q.source ?? "-"}\nRef: ${id}`,
       }),

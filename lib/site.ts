@@ -9,6 +9,7 @@ export const site = {
   phoneHref: "tel:+14429995014",
   phoneE164: "+14429995014",
   whatsapp: "16195641742", // wa.me format; answered anytime
+  email: "reyestirespro@gmail.com", // shop inbox; default for website quotes
   whatsappDisplay: "(619) 564-1742",
 
   streetAddress: "260 N Juniper St",

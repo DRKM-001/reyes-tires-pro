@@ -6,7 +6,7 @@ export interface Env {
   QUOTE_WEBHOOK_URL?: string;
   /** Optional: email every quote request through Resend. */
   RESEND_API_KEY?: string;
-  QUOTE_EMAIL_TO?: string;   // e.g. the shop's inbox
+  QUOTE_EMAIL_TO?: string;   // overrides site.email (reyestirespro@gmail.com)
   QUOTE_EMAIL_FROM?: string; // a verified Resend sender, e.g. "Reyes Tires Pro <quotes@reyestirespro.com>"
   /** Optional: Cloudflare KV namespace binding to keep a copy of every lead. */
   LEADS?: KVNamespace;

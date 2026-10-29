@@ -35,7 +35,7 @@ The quote form on the site sends this request in the background (`navigator.send
 | Variable | Effect |
 |---|---|
 | `QUOTE_WEBHOOK_URL` | Every quote is POSTed as JSON here (Zapier, Make, n8n, a CRM, or our own service) |
-| `RESEND_API_KEY`, `QUOTE_EMAIL_TO`, `QUOTE_EMAIL_FROM` | Every quote is emailed to the shop through Resend |
+| `RESEND_API_KEY` (+ optional `QUOTE_EMAIL_TO`, `QUOTE_EMAIL_FROM`) | Every quote is emailed through Resend. Goes to reyestirespro@gmail.com (`site.email`) unless `QUOTE_EMAIL_TO` overrides it |
 | `LEADS` (KV binding) | A copy of every quote is stored for a year |
 | `INVENTORY_API_URL`, `INVENTORY_API_KEY` | `/api/inventory` passes the request through to the inventory service. It expects a JSON array of `InventoryItem`. |
 
